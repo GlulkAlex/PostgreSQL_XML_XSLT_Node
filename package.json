@@ -1,0 +1,16 @@
+{
+  "name": "PostgreSQL_XML_XSLT",
+  "version": "1.0.0",
+  "description": "JDBC and XML, XSLT job application Assignment",
+  "main": "index.js",
+  "author": "GlukAlex",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "pg": "^7.3.0",
+    "rx": "^4.1.0"
+  },
+  "devDependencies": {
+    "qunitjs": "^2.4.0"
+  }
+}

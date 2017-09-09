@@ -454,8 +454,11 @@ const connection_URI_Obj = {
 //
 function get_Current_Time(
   connection_Obj = credentials_Obj
+  , is_DeBug_Mode = 1 == 0
 ){
-  console.log( "connection_Obj:", connection_Obj );
+  if( is_DeBug_Mode ){
+    console.log( "connection_Obj:", connection_Obj );
+  }
   // pools will use environment variables
   // for connection information
   // error: password authentication failed for user "gluk-alex"
@@ -468,15 +471,45 @@ function get_Current_Time(
   pool
     .query(
       //'SELECT NOW()', 
-      'SELECT * FROM test;', 
+      //'SELECT * FROM test;', 
+      {
+        text: (
+          //'SELECT * FROM test'
+          'SELECT Count(*) FROM test'
+        ),
+        //values: ['Brian', 'Carlson'],
+        rowMode: 'array',
+      },
       ( err, res ) => {
       //console.log( err, res );
       console.log( "query.err:", err );
       console.log( "query.res:", res );
+      if ( err == undefined ){
+        if( is_DeBug_Mode || 1 == 1 ){
+          console.log( 
+            // from: 
+            // "https://nodejs.org/dist/latest-v6.x/docs/api/util.html#util_util_format_format_args"
+            // %j - JSON. Replaced with the string '[Circular]' 
+            //      if the argument contains circular references.
+            "rowCount:%d, rows:%j, rows[0]:%j, rows[0][0]:%s", 
+            // Result
+            res.rowCount, 
+            res.rows 
+            , res.rows[0] 
+            , res.rows[0][0] 
+          );
+        }        
+      }
+      // finally 
       pool.end();
     }
   );
 }
+/// *************************************
+// Promises allow us to use async/await 
+// in node v8.0 and above 
+// (or earlier if you're using babel).
+/// *************************************
 /*
 async function select_Hello() {
   // The `await` operator is used to wait for a Promise. 
@@ -493,4 +526,120 @@ async function select_Hello() {
 }
 select_Hello();
 */
-//
+// Query config object
+const query_Obj_INSERT = {
+  text: 'INSERT INTO users(name, email) VALUES($1, $2)',
+  values: ['brianc', 'brian.m.carlson@gmail.com'],
+};
+/* the client.query and the pool.query - 
+both methods support the same API. 
+In fact, 
+pool.query delegates directly to client.query internally.
+*/
+/*
+// callback
+client.query(query, (err, res) => {
+  if (err) {
+    console.log(err.stack)
+  } else {
+    console.log(res.rows[0])
+  }
+});
+*/
+/*
+Prepared statements:
+===
+PostgreSQL has the concept of a prepared statement. 
+node-postgres supports this 
+by supplying a name parameter 
+to the query config object. 
+If you supply a name parameter 
+the query execution plan will be cached 
+on the PostgreSQL server 
+on a per connection basis. 
+This means 
+if you use two different connections 
+each will have to parse & plan the query once. 
+node-postgres handles this transparently for you: 
+a client only requests a query 
+to be parsed the first time 
+that particular client 
+has seen that query name .
+
+Note:
+  Be careful 
+  not to fall into the trap of premature optimization. 
+  Most of your queries will likely not benefit much, 
+  if at all, 
+  from using prepared statements. 
+  This is a somewhat "power user" feature of PostgreSQL 
+  that is best used 
+  when you know how to use it - namely 
+  with very complex queries 
+  with lots of joins 
+  and advanced operations 
+  like union 
+  and switch statements. 
+  I rarely use this feature 
+  in my own apps 
+  unless writing complex aggregate queries 
+  for reports 
+  and I know 
+  the reports are going to be executed very frequently.
+*/
+/// so, it is sort of a stored procedure ? 
+const query_Obj_Prepared = {
+  // give the query a unique name
+  name: 'fetch-user',
+  text: 'SELECT * FROM user WHERE id = $1',
+  values: [1]
+};
+/*
+// callback
+client.query(query, (err, res) => {
+  if (err) {
+    console.log(err.stack)
+  } else {
+    console.log(res.rows[0])
+  }
+});
+*/
+/*
+Row mode
+---
+By default 
+node-postgres reads rows 
+and collects them 
+into JavaScript objects 
+with the keys matching the column names 
+and the values matching the corresponding row value for each column. 
+If you do not need 
+or do not want this behavior 
+you can pass 
+rowMode: 'array' 
+to a query object. 
+This will inform 
+the result parser 
+to bypass collecting rows 
+into a JavaScript object, 
+and instead 
+will return 
+each row as 
+an array of values.
+*/
+const query_Obj_Row_Arr = {
+  text: 'SELECT $1::text as first_name, select $2::text as last_name',
+  values: ['Brian', 'Carlson'],
+  rowMode: 'array',
+};
+/*
+// callback
+client.query(query, (err, res) => {
+  if (err) {
+    console.log(err.stack)
+  } else {
+    console.log(res.fields.map(f => field.name)) // ['first_name', 'last_name']
+    console.log(res.rows[0]) // ['Brian', 'Carlson']
+  }
+});
+*/

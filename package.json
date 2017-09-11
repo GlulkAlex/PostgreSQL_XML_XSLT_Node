@@ -13,4 +13,7 @@
   "devDependencies": {
     "qunitjs": "^2.4.0"
   }
+  , "scripts": {
+    "test": "qunit"
+  }
 }

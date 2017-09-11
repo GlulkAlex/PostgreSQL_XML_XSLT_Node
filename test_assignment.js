@@ -9,6 +9,8 @@ const links = {
       "RxJS": 
       "https://github.com/Reactive-Extensions/RxJS/blob/master/doc/gettingstarted/testing.md" 
     } 
+    , { "flow": "https://flow.org/" }
+    , { "immutable-js": "https://facebook.github.io/immutable-js/" }
     , { "nodejs": "https://nodejs.org/en/docs/guides/simple-profiling/" }
     , { "readline": "https://nodejs.org/api/readline.html" }
   ]

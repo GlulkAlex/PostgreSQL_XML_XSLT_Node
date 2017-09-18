@@ -1,14 +1,68 @@
 "use strict";
 //
+/* @toDo: Goal|Task implement pipeline|data flow:
+( success|completed only cases )
+- put stdout prompt + get stdin line 
+  -> ? change ?|emit inner state  
+  { inner state: partial DB credentials|max table size|value }
+- put stdout prompt + get stdin line 
+  -> use previously emitted inner state, update it, emit it
+  ... repeat 
+  until all information|data is collected for the next step
+  { inner state: DB credentials + max table size|value }
+- -> using previously created and emitted inner state
+  connect to DB -> emit connection open pool  
+  { inner state: open connection pool + max table size|value }
+- -> using open pool, query DB table for record's size|count
+  -> emit query result  
+  { inner state: open connection pool + max table size|value + query result }
+( choice|conditional|branching )  
+- -> using query result
+  - if DB table non-empty -> side effect -> clear it
+- -> using previously created and emitted inner state
+  ( stored somewhere|passed along ) 
+  and open connection pool -> update DB table -> insert new records|rows 
+  ( this might requre an intermediate step, 
+  for generating new table data content as separate|temporary file )
+  { inner state: open connection pool }
+- -> using open connection pool, 
+  query updated DB table for all|its records 
+  store this|query data as XML file with structure 1,
+  close opend connection pool, 
+  -> emit created file name|? opened file's pointer ?
+  { inner state: file name 1 }
+- -> using emitted open file name, 
+  open file for read, 
+  parse XML tree,
+  transform it with XSLT to XML file with structure 2,
+  save|store generated file,
+  -> emit created file name
+  { inner state: file name 1 }
+- -> using emitted open file name, 
+  open file for read, 
+  parse XML tree|file content,
+  read data from target field,
+  accumulate this data as sum 
+  -> emit accumulated sum as final result
+  { inner state: final sum }
+
+so mostly|basically it is chaining|reducer
+
+Note:
+  all steps, except user|console input,
+  restricted by overall running time|have timeout  
+*/
 const links = { 
   "links": [
     { "yarn": "https://yarnpkg.com/en/docs/cli/" } 
     , { "node-postgres": "https://node-postgres.com/" } 
     , { "qunitjs": "https://qunitjs.com/" } 
+    , { "reactivex": "http://reactivex.io/documentation/operators.html" }     
     , { 
       "RxJS": 
       "https://github.com/Reactive-Extensions/RxJS/blob/master/doc/gettingstarted/testing.md" 
     } 
+    , { "Interactive diagrams of Rx Observables": "http://rxmarbles.com/" }         
     , { "flow": "https://flow.org/" }
     , { "immutable-js": "https://facebook.github.io/immutable-js/" }
     , { "nodejs": "https://nodejs.org/en/docs/guides/simple-profiling/" }

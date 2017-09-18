@@ -63,4 +63,6 @@ typings/
 tags/
 # yarn.lock
 yarn.lock
+# bakup files
+*.bak 
 
